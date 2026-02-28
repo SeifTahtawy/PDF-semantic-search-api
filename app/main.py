@@ -3,16 +3,20 @@ from app.middleware import RequestLoggingMiddleware
 from app.vector_db import initialize_qdrant
 from app.logging_config import configure_logging
 from app.embedding import initialize_embedding_model
+from app.ingest import router as ingest_router
+
 
 app = FastAPI(title="PDF Semantic Search API")
 
 app.add_middleware(RequestLoggingMiddleware)
 
+app.include_router(ingest_router)
+
 @app.on_event("startup")
-def startup_event():
+async def startup_event():
     configure_logging()
     initialize_embedding_model()
-    initialize_qdrant()
+    await initialize_qdrant()
 
 
 @app.get("/health")
