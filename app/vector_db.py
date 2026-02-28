@@ -1,13 +1,13 @@
 from qdrant_client import QdrantClient
 from qdrant_client.models import VectorParams, Distance
 from app.config import settings
+from app.embedding import get_embedding_dimension
 import logging
 
 logger = logging.getLogger("app")
 
 qdrant_client = None
 
-EMBEDDING_DIMENSION = 384  # all-MiniLM-L6-v2
 
 
 def initialize_qdrant():
@@ -24,6 +24,8 @@ def initialize_qdrant():
 
     if not collections.collections:
         logger.info("No collections found. Creating collection...")
+
+        EMBEDDING_DIMENSION = get_embedding_dimension()  # all-MiniLM-L6-v2
 
         qdrant_client.create_collection(
             collection_name="pdf_chunks",

@@ -12,6 +12,13 @@ fi
 
 if [[ "$2" == "start" ]]; then
     docker compose up --build -d
+    echo "Waiting for application startup ..."
+
+    until curl -s http://localhost:8000/health > /dev/null; do
+        sleep 2
+    done
+
+echo "API is ready."
 elif [[ "$2" == "terminate" ]]; then
     docker compose down -v --remove-orphans
 else
