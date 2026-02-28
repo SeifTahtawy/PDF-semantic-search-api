@@ -13,7 +13,7 @@ fi
 if [[ "$2" == "start" ]]; then
     docker compose up --build -d
 elif [[ "$2" == "terminate" ]]; then
-    docker compose down -v
+    docker compose down -v --remove-orphans
 else
     echo "Error: Invalid action '$2'."
     echo
