@@ -1,24 +1,12 @@
 import time
 import uuid
+import os
 import logging
 from fastapi import Request
 from starlette.middleware.base import BaseHTTPMiddleware
 from app.config import settings
 
-
-# Configure logger
 logger = logging.getLogger("app")
-logger.setLevel(logging.INFO)
-
-file_handler = logging.FileHandler(settings.log_file_path)
-formatter = logging.Formatter(
-    "%(asctime)s | %(levelname)s | %(message)s"
-)
-file_handler.setFormatter(formatter)
-
-if not logger.handlers:
-    logger.addHandler(file_handler)
-
 
 class RequestLoggingMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
