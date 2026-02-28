@@ -5,7 +5,6 @@ import os
 class Settings(BaseModel):
     qdrant_host: str
     qdrant_port: int
-    collection_name: str
     embedding_model_name: str
     log_file_path: str
 
