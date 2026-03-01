@@ -6,11 +6,15 @@ from app.embedding import initialize_embedding_model
 from app.ingest import router as ingest_router
 from app.search import router as search_router
 import torch
+from app.global_exception_handler import global_exception_handler
+
+
 
 
 app = FastAPI(title="PDF Semantic Search API")
 
 app.add_middleware(RequestLoggingMiddleware)
+app.add_exception_handler(Exception, global_exception_handler)
 
 app.include_router(ingest_router)
 app.include_router(search_router)
