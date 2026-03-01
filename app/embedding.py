@@ -1,6 +1,8 @@
 from sentence_transformers import SentenceTransformer
 from app.config import settings
 import logging
+from app.tracing import trace
+
 
 logger = logging.getLogger("app")
 
@@ -20,12 +22,9 @@ def initialize_embedding_model() -> None:
     logger.info("Embedding model loaded successfully.")
 
 
-def get_embedding_dimension() -> int:
-    if _model is None:
-        raise RuntimeError("Embedding model is not initialized.")
-    return _model.get_sentence_embedding_dimension()
 
 
+@trace
 def embed_chunks(chunks: list[str]) -> list[list[float]]:
     if _model is None:
         raise RuntimeError("Embedding model is not initialized.")

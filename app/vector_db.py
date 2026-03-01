@@ -1,7 +1,6 @@
 from qdrant_client import QdrantClient, AsyncQdrantClient
 from qdrant_client.models import VectorParams, Distance
 from app.config import settings
-from app.embedding import get_embedding_dimension
 import logging
 
 logger = logging.getLogger("app")

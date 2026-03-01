@@ -1,13 +1,13 @@
 from typing import List, Dict
 import logging
-
+from app.tracing import trace
 logger = logging.getLogger("app")
 
-
+@trace
 def chunk_pages(
     pages: List[Dict],
-    chunk_size: int = 1000,
-    overlap: int = 200,
+    chunk_size: int = 600,
+    overlap: int = 100,
 ) -> List[Dict]:
 
     if overlap >= chunk_size:

@@ -9,6 +9,8 @@ import logging
 import time
 import uuid
 import app.vector_db as vector_db
+from app.tracing import trace
+
 
 
 logger = logging.getLogger("app")
@@ -17,29 +19,28 @@ router = APIRouter()
 
 
 @router.post("/ingest/", status_code=201)
+@trace
 async def ingest(input: UploadFile = File(...)):
 
-    logger.info(f"Ingest request received | filename={input.filename}")
+    
 
     if input.content_type != "application/pdf":
-        logger.warning("Rejected file due to invalid content type.")
         raise HTTPException(status_code=400, detail="Only PDF files are allowed.")
 
     file_bytes = await input.read()
 
     if not file_bytes.startswith(b"%PDF"):
-        logger.warning("Rejected file due to invalid PDF signature.")
         raise HTTPException(status_code=400, detail="Invalid PDF file.")
 
     filename = input.filename.replace(" ", "_")
 
-    logger.info("Starting PDF Parsing...")
+    
     pages = extract_text_from_pdf(file_bytes)
-    logger.info(f"PDF parsing complete | Total pages = {len(pages)}")
+    
 
-    logger.info("Starting Text Chunking...")
+    
     chunks = chunk_pages(pages)
-    logger.info(f"Text chunking complete | Total chunks = {len(chunks)}")
+    
 
     if not chunks:
         logger.warning("No chunks created from PDF")
@@ -47,13 +48,13 @@ async def ingest(input: UploadFile = File(...)):
 
     texts = [chunk["text"] for chunk in chunks]
 
-    logger.info("Starting Embedding")
+    
     embedding_start_time = time.perf_counter()
 
     embeddings = await run_in_threadpool(embed_chunks, texts)
 
     embedding_duration = 1000*(time.perf_counter() - embedding_start_time)
-    logger.info(f"Embedding Complete | Total chunks = {len(chunks)} | Elapsed Time(ms) = {embedding_duration}")
+    
     
     points = []
 
@@ -83,7 +84,7 @@ async def ingest(input: UploadFile = File(...)):
     
 
     logger.info(f"Upserting Complete | Total vectors = {len(points)}")
-    logger.info(f"Ingest Complete | filename = {filename}")
+    
     return {
         "filename": filename,
         "pages_processed": len(pages),

@@ -6,6 +6,8 @@ from app.config import settings
 from app.models import SearchRequest, SearchResponse, SearchResult
 import app.vector_db as vector_db
 import logging
+from app.tracing import trace
+
 
 logger = logging.getLogger("app")
 
@@ -13,21 +15,19 @@ router = APIRouter()
 
 
 @router.post("/search/", response_model=SearchResponse)
+@trace
 async def search(request: SearchRequest):
 
-    logger.info(f"Search request received | query='{request.query}'")
+    
     if not request.query.strip():
-        logger.info("Query is empty")
         raise HTTPException(
             status_code=400,
             detail="Query cannot be empty."
         )
 
-    logger.info("Embedding Query...")
     query_vector = await run_in_threadpool(embed_chunks, [request.query])
     query_vector = query_vector[0]
 
-    logger.info("Searching for results...")
     search_result = await vector_db.qdrant_client.search(
         collection_name="pdf_chunks",
         query_vector=query_vector,
@@ -50,7 +50,7 @@ async def search(request: SearchRequest):
             )
         )
 
-    logger.info(f"Search complete | returned_results={len(results)}")
+    
 
     return SearchResponse(
         query=request.query,
