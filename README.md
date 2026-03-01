@@ -18,7 +18,7 @@ Built with **FastAPI**, **Qdrant**, and **Sentence Transformers**, this service 
 * **Concurrency Model:** Multi-worker Uvicorn + async I/O
 
 
-## ⚙️ System Design
+## System Design
 
 ### Ingestion Pipeline (`/ingest`)
 
@@ -76,7 +76,7 @@ The model loads at application startup.
 Expect a short delay during first boot due to model initialization.
 
 
-## 📊 Logging & Observability
+## Logging & Observability
 
 Each request is assigned a **UUID** via middleware.
 
@@ -95,7 +95,7 @@ This allows:
 Example logged metadata:
 
 
-## 🚀 Concurrency Model
+## Concurrency Model
 
 The application uses:
 
@@ -192,7 +192,3 @@ This project implements a production-aware semantic search backend with:
 * Observability via request tracing
 * Containerized reproducibility
 * Clean separation of ingestion and retrieval pipelines
-
-
-* A more technical version (for senior backend reviewers)
-* Or a system architecture diagram description for documentation
