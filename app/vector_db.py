@@ -1,5 +1,6 @@
 from qdrant_client import QdrantClient, AsyncQdrantClient
 from qdrant_client.models import VectorParams, Distance
+from qdrant_client.http.exceptions import UnexpectedResponse
 from app.config import settings
 import logging
 
@@ -20,23 +21,28 @@ async def initialize_qdrant():
         timeout=60.0
     )
 
-    collections = await qdrant_client.get_collections()
+    # collections = await qdrant_client.get_collections()
+    # existing_collections = [c.name for c in collections.collections]
+    # if "pdf_chunks" not in existing_collections:
+    #     logger.info("No collections found. Creating collection...")
 
-    if not collections.collections:
-        logger.info("No collections found. Creating collection...")
+    EMBEDDING_DIMENSION = 384  # all-MiniLM-L6-v2
 
-        EMBEDDING_DIMENSION = 384  # all-MiniLM-L6-v2
 
+    try:
         await qdrant_client.create_collection(
             collection_name="pdf_chunks",
             vectors_config=VectorParams(
-                size=EMBEDDING_DIMENSION,
-                distance=Distance.COSINE,
+            size=EMBEDDING_DIMENSION,
+            distance=Distance.COSINE,
             ),
         )
 
         logger.info("Collection created.")
-    else:
-        logger.info("Collection already exists.")
+    except UnexpectedResponse as e:
+        if e.status_code == 409:
+            logger.info("Collection already exists.")
+        else:
+            raise
 
     logger.info("Qdrant initialization complete.")

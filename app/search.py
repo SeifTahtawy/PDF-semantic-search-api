@@ -1,6 +1,5 @@
 from app.models import SearchRequest
 from fastapi import APIRouter, HTTPException
-from fastapi.concurrency import run_in_threadpool
 from app.embedding import embed_chunks
 from app.config import settings
 from app.models import SearchRequest, SearchResponse, SearchResult
@@ -25,7 +24,7 @@ async def search(request: SearchRequest):
             detail="Query cannot be empty."
         )
 
-    query_vector = await run_in_threadpool(embed_chunks, [request.query])
+    query_vector = embed_chunks([request.query])
     query_vector = query_vector[0]
 
     search_result = await vector_db.qdrant_client.search(
