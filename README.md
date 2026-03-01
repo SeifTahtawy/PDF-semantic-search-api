@@ -140,7 +140,7 @@ Model loading occurs during startup — allow time before sending requests.
 ```
 
 
-## 📡 API Endpoints
+## API Endpoints
 
 ### `POST /ingest`
 
@@ -169,7 +169,7 @@ Returns top relevant text chunks from the vector database.
 
 ---
 
-## 🧩 Design Decisions
+## Design Decisions
 
 | Concern          | Decision                   |
 | ---------------- | -------------------------- |
