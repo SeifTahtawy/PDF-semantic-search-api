@@ -16,3 +16,12 @@ class SearchResult(BaseModel):
 class SearchResponse(BaseModel):
     query: str
     results: List[SearchResult]
+
+class ErrorResponse(BaseModel):
+    detail: str 
+
+
+class IngestResponse(BaseModel):
+    filename: str 
+    pages_processed: int
+    vectors_inserted: int 

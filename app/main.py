@@ -11,7 +11,14 @@ from app.global_exception_handler import global_exception_handler
 
 
 
-app = FastAPI(title="PDF Semantic Search API")
+app = FastAPI(
+    title="PDF Semantic Search API",
+    version="1.0.0",
+    description=(
+        "API for ingesting PDF documents, generating embeddings using "
+        "Sentence Transformers, and performing semantic search via Qdrant."
+    ),
+)
 
 app.add_middleware(RequestLoggingMiddleware)
 app.add_exception_handler(Exception, global_exception_handler)

@@ -5,6 +5,7 @@ from app.pdf_parser import extract_text_from_pdf
 from app.chunking import chunk_pages
 from app.embedding import embed_chunks
 from app.config import settings
+from app.models import IngestResponse, ErrorResponse
 import logging
 import time
 import uuid
@@ -18,7 +19,23 @@ logger = logging.getLogger("app")
 router = APIRouter()
 
 
-@router.post("/ingest/", status_code=201)
+@router.post("/ingest/",
+            status_code=201,
+            response_model=IngestResponse,
+            responses={
+                400: {
+                    "model": ErrorResponse,
+                    "description": "Invalid file input"
+                    },
+                500: {
+                    "model": ErrorResponse,
+                    "description": "Failed to process uploaded file"
+                    },
+                },
+            summary="Ingest a PDF document",
+            description="Uploads a PDF file, extracts text, chunks content, generates embeddings in batches, and upserts vectors into Qdrant."
+        )
+
 @trace
 async def ingest(input: UploadFile = File(...)):
 
@@ -111,56 +128,8 @@ async def ingest(input: UploadFile = File(...)):
 
         total_vectors += len(points)
         logger.info(f"Upserted final batch | Size = {len(points)}")
-
-    # if not chunks:
-    #     logger.warning("No chunks created from PDF")
-    #     raise HTTPException(status_code=400, detail="No text extracted from PDF.")
-
-    # texts = [chunk["text"] for chunk in chunks]
-
     
-    # embedding_start_time = time.perf_counter()
-
-    # embeddings = embed_chunks(texts)
-
-    # embedding_duration = 1000*(time.perf_counter() - embedding_start_time)
-    
-    
-    # logger.info("Upserting vectors into Qdrant (batched)...")
-
-
-    # for i in range(0, len(chunks), BATCH_SIZE):
-    #     batch_chunks = chunks[i:i + BATCH_SIZE]
-    #     batch_embeddings = embeddings[i:i + BATCH_SIZE]
-
-    #     batch_points = []
-
-    #     for chunk, vector in zip(batch_chunks, batch_embeddings):
-    #         raw_id = f"{filename}::{chunk['page_number']}::{chunk['chunk_index']}"
-    #         point_id = str(uuid.uuid5(uuid.NAMESPACE_DNS, raw_id))
-
-    #         batch_points.append(
-    #             PointStruct(
-    #                 id=point_id,
-    #                 vector=vector,
-    #                 payload={
-    #                     "page_number": chunk["page_number"],
-    #                     "chunk_index": chunk["chunk_index"],
-    #                     "source_file": filename,
-    #                     "text": chunk["text"],
-    #                 },
-    #             )
-    #         )
-
-    #     await vector_db.qdrant_client.upsert(
-    #         collection_name="pdf_chunks",
-    #         points=batch_points,
-    #     )
-
-    #     total_vectors += len(batch_points)
-    
-
-    logger.info(f"Upserting Complete | Total vectors = {len(points)}")
+    logger.info(f"Upserting Complete | Total vectors = {total_vectors}")
     
     return {
         "filename": filename,

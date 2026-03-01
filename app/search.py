@@ -1,4 +1,4 @@
-from app.models import SearchRequest
+from app.models import SearchRequest, SearchResponse, ErrorResponse
 from fastapi import APIRouter, HTTPException
 from app.embedding import embed_chunks
 from app.config import settings
@@ -13,7 +13,22 @@ logger = logging.getLogger("app")
 router = APIRouter()
 
 
-@router.post("/search/", response_model=SearchResponse)
+@router.post("/search/",
+            response_model=SearchResponse,
+    responses={
+        400: {
+            "model": ErrorResponse,
+            "description": "Invalid query"
+        },
+        500: {
+            "model": ErrorResponse,
+            "description": "Search processing failed"
+        },
+    },
+    summary="Perform semantic search",
+    description="Embeds the query using Sentence Transformers and retrieves the most semantically similar PDF chunks from Qdrant."
+)
+
 @trace
 async def search(request: SearchRequest):
 
